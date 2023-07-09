@@ -1,42 +1,41 @@
 import get from 'axios'
 
 class ExternalFileServiceImpl {
-  constructor () {
+  constructor (httpErrorManagerExternalFileService) {
     this.baseUrl = 'https://echo-serv.tbxnet.com'
     this.apiKey = 'Bearer aSuperSecretKey'
+    this.headers = {
+      Authorization: this.apiKey,
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE'
+    }
+    this.httpErrorManagerExternalFileService = httpErrorManagerExternalFileService
   }
 
   async getFiles () {
     try {
       const response = await get(`${this.baseUrl}/v1/secret/files`, {
-        headers: {
-          Authorization: this.apiKey,
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
-          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE'
-        }
+        headers: this.headers
       })
       return response.data.files
     } catch (error) {
-      console.error('Error fetching files:', error.response.data)
-      throw error
+      const errorExternalFileService = this.httpErrorManagerExternalFileService.createHttpError(error)
+      console.error('Error fetching files:', errorExternalFileService)
+      throw errorExternalFileService
     }
   }
 
   async getFile (file) {
     try {
       const response = await get(`${this.baseUrl}/v1/secret/file/${file}`, {
-        headers: {
-          Authorization: this.apiKey,
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
-          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE'
-        }
+        headers: this.headers
       })
       return response.data
     } catch (error) {
-      console.error(`Error fetching file ${file}:`, error.response.data)
-      throw error
+      const errorExternalFileService = this.httpErrorManagerExternalFileService.createHttpError(error)
+      console.error(`Error fetching file ${file}:`, errorExternalFileService)
+      throw errorExternalFileService
     }
   }
 }

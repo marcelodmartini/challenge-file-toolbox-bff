@@ -1,8 +1,8 @@
 import ExternalFileServiceImpl from '../../frameworks/externalFileService/externalFileServiceImpl.js'
 
 class ExternalFilesRepository {
-  constructor () {
-    this.externalFileServiceImpl = new ExternalFileServiceImpl()
+  constructor (httpErrorManagerExternalFileService) {
+    this.externalFileServiceImpl = new ExternalFileServiceImpl(httpErrorManagerExternalFileService)
   }
 
   async getFiles () {

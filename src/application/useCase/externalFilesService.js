@@ -10,17 +10,13 @@ class ExternalFilesService {
 
   async processFile (fileName) {
     const processedFile = []
-    try {
-      const fileData = await this.externalFilesRepository.getFile(fileName)
-      const processedLines = this.processFileData(fileData)
-      if (processedLines.length > 0) {
-        processedFile.push({
-          fileName,
-          lines: processedLines
-        })
-      }
-    } catch (error) {
-      console.error(`Error fetching data file ${fileName}:`)
+    const fileData = await this.externalFilesRepository.getFile(fileName)
+    const processedLines = this.processFileData(fileData)
+    if (processedLines.length > 0) {
+      processedFile.push({
+        fileName,
+        lines: processedLines
+      })
     }
     return processedFile
   }
@@ -40,6 +36,7 @@ class ExternalFilesService {
           })
         }
       } catch (error) {
+        // I discard said file because its information could not be obtained, external api error
         console.error(`Error fetching data file ${file}:`)
       }
     }
