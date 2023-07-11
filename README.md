@@ -1,53 +1,9 @@
-    Take into account that there may be empty files and lines with errors (that do not have the necessary amount of data).
-    If a line has an error, it must be discarded.
-    There may also be errors when downloading a file
-    The Text field cannot be empty or null.
-    The hex field must have exactly 32 digits
-    The number field must be a number and not a text
-
-————————————————————————————————————————————————————————————————————————————- 
-See what node I have installed:
-nvm list  
-————————————————————————————————————————————————————————————————————————————-  
-If you don't have it, install it with:
-nvm install v14.0.0  
-————————————————————————————————————————————————————————————————————————————-  
-To select the specific version invoke:
-nvm use v14.0.0  
-————————————————————————————————————————————————————————————————————————————-  
-Create Node project:
-npm init -y  
-————————————————————————————————————————————————————————————————————————————-  
-Install nodomon (Nodemon: When developing a web application based on
-Node.js, is a package that helps the application become
-run automatically when a file changes.)
-npm i -D nodemon // -D: set as a development dependency  
-————————————————————————————————————————————————————————————————————————————-  
-Instalar Express:  
-npm install express —save  
-The –save command tells npm to add the packages as dependencies in the
-package.json. By default with npm v5.0+, npm install adds the module to
-the dependencies list in the package.json file. In earlier versions of
-npm require the –save flag to be specified explicitly.  
-————————————————————————————————————————————————————————————————————————————-  
-Kill node:  
-killall –9 node  
-————————————————————————————————————————————————————————————————————————————-
-
-https://standardjs.com/
-
-npm install standard -D
-
-------------------------------------------------------------------------
-
-Utils commands:
-
-kill –9 $(sudo lsof -t -i:3000)
-
-npm audit fix (para ver errores en el package.json)
-
-npx standard —fix (Use JavaScript Standard Style
-(https://standardjs.com))
+Take into account that there may be empty files and lines with errors (that do not have the necessary amount of data).
+If a line has an error, it must be discarded.
+There may also be errors when downloading a file
+The Text field cannot be empty or null.
+The hex field must have exactly 32 digits
+The number field must be a number and not a text
 
 ------------------------------------------------------------------------
 
