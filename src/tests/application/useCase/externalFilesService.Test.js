@@ -1,129 +1,150 @@
+/* eslint-disable no-unused-expressions */
 /* eslint-disable no-undef */
 import chai from 'chai'
-import chaiAsPromised from 'chai-as-promised'
 import ExternalFilesService from '../../../application/useCase/externalFilesService.js'
+import chaiAsPromised from 'chai-as-promised'
 
+const { expect } = chai
 chai.use(chaiAsPromised)
-chai.should()
 
 describe('ExternalFilesService', () => {
-  const externalFilesRepository = {
-    getFiles: async () => ['file1.csv', 'file2.csv'],
-    getFile: async (file) => {
-      if (file === 'file1.csv') {
-        return 'file,text,number,hex\n' +
-          'file1.csv,RgTya,64075909,70ad29aacf0b690b0467fe2b2767f765\n' +
-          'file1.csv,AtjW,6,d33a8ca5d36d3106219f66f939774cf5\n' +
-          'file1.csv,PNzRfORtKtEDOzmIVrQuSh,74088708,3\n' +
-          'e29651a63a5202a5661e05a060401fb\n' +
-          'file1.csv,d,6173,f9e1bcdb9e3784acc448af34f4727252\n'
-      } else {
-        return 'file,text,number,hex\n' +
-          'file2.csv,ABC,123,abcdef\n' +
-          'file2.csv,XYZ,456,7890abcd\n'
+  describe('getFilesList', () => {
+    it('should return a list of files', async () => {
+      const externalFilesRepository = {
+        getFiles: () => Promise.resolve(['file1', 'file2', 'file3'])
       }
-    }
-  }
+      const service = new ExternalFilesService(externalFilesRepository)
 
-  const externalFilesService = new ExternalFilesService(externalFilesRepository)
+      const result = await service.getFilesList()
 
-  describe('processFiles', () => {
-    it('should return processed files', async () => {
-      const processedFiles = await externalFilesService.processFiles()
-
-      processedFiles.should.be.an('array')
-      processedFiles.should.have.lengthOf(2)
-
-      const file1 = processedFiles[0]
-      const file2 = processedFiles[1]
-
-      file1.should.have.property('file').equal('file1.csv')
-      file1.should.have.property('lines').that.is.an('array').with.lengthOf(4)
-
-      file2.should.have.property('file').equal('file2.csv')
-      file2.should.have.property('lines').that.is.an('array').with.lengthOf(2)
+      expect(result).to.deep.equal(['file1', 'file2', 'file3'])
     })
 
-    it('should handle empty files', async () => {
-      const emptyFilesRepository = {
-        getFiles: async () => [],
-        getFile: async () => {
-          throw new Error('Should not be called')
-        }
+    it('should throw an error if repository returns an error', async () => {
+      const externalFilesRepository = {
+        getFiles: () => Promise.reject(new Error('Repository error'))
       }
+      const service = new ExternalFilesService(externalFilesRepository)
 
-      const emptyFilesService = new ExternalFilesService(emptyFilesRepository)
-      const processedFiles = await emptyFilesService.processFiles()
-
-      processedFiles.should.be.an('array')
-      processedFiles.should.have.lengthOf(0)
-    })
-
-    it('should handle files with errors', async () => {
-      const errorFilesRepository = {
-        getFiles: async () => ['file1.csv'],
-        getFile: async () => {
-          return 'file,text,number,hex\n' +
-            'file1.csv,RgTya,64075909,70ad29aacf0b690b0467fe2b2767f765\n' +
-            'file1.csv,AtjW,6,d33a8ca5d36d3106219f66f939774cf5\n' +
-            'file1.csv,PNzRfORtKtEDOzmIVrQuSh,74088708,3\n' +
-            'Invalid Line\n' +
-            'file1.csv,d,6173,f9e1bcdb9e3784acc448af34f4727252\n'
-        }
-      }
-
-      const errorFilesService = new ExternalFilesService(errorFilesRepository)
-      const processedFiles = await errorFilesService.processFiles()
-
-      processedFiles.should.be.an('array')
-      processedFiles.should.have.lengthOf(1)
-
-      const file1 = processedFiles[0]
-      file1.should.have.property('file').equal('file1.csv')
-      file1.should.have.property('lines').that.is.an('array').with.lengthOf(4)
+      await expect(service.getFilesList()).to.be.rejectedWith('Repository error')
     })
   })
 
-  describe('processFileData', () => {
-    it('should process file data', () => {
-      const fileData = 'file,text,number,hex\n' +
-        'file1.csv,RgTya,64075909,70ad29aacf0b690b0467fe2b2767f765\n' +
-        'file1.csv,AtjW,6,d33a8ca5d36d3106219f66f939774cf5\n' +
-        'file1.csv,PNzRfORtKtEDOzmIVrQuSh,74088708,3\n' +
-        'e29651a63a5202a5661e05a060401fb\n' +
-        'file1.csv,d,6173,f9e1bcdb9e3784acc448af34f4727252\n'
+  describe('processFile', () => {
+    it('should process a file and return the processed data', async () => {
+      const fileData = 'file,text,number,hex\nfile1,text1,12345678,ddf63716b65730b5c9b87c73b8399acb\nfile1,text2,98765432,ddf63716b65730b5c9b87c73b8399acb'
 
-      const processedLines = externalFilesService.processFileData(fileData)
+      const externalFilesRepository = {
+        getFile: () => Promise.resolve(fileData)
+      }
+      const service = new ExternalFilesService(externalFilesRepository)
 
-      processedLines.should.be.an('array')
-      processedLines.should.have.lengthOf(3)
-
-      const line1 = processedLines[0]
-      const line2 = processedLines[1]
-      const line3 = processedLines[2]
-
-      line1.should.deep.equal({ text: 'RgTya', number: 64075909, hex: '70ad29aacf0b690b0467fe2b2767f765' })
-      line2.should.deep.equal({ text: 'AtjW', number: 6, hex: 'd33a8ca5d36d3106219f66f939774cf5' })
-      line3.should.deep.equal({ text: 'PNzRfORtKtEDOzmIVrQuSh', number: 74088708, hex: '3' })
+      const result = await service.processFile('file1')
+      expect(result).to.deep.equal([{
+        fileName: 'file1',
+        lines: [
+          { text: 'text1', number: 12345678, hex: 'ddf63716b65730b5c9b87c73b8399acb' },
+          { text: 'text2', number: 98765432, hex: 'ddf63716b65730b5c9b87c73b8399acb' }
+        ]
+      }])
     })
 
-    it('should ignore lines with errors', () => {
-      const fileData = 'file,text,number,hex\n' +
-        'file1.csv,RgTya,64075909,70ad29aacf0b690b0467fe2b2767f765\n' +
-        'file1.csv,AtjW,6,d33a8ca5d36d3106219f66f939774cf5\n' +
-        'Invalid Line\n' +
-        'file1.csv,d,6173,f9e1bcdb9e3784acc448af34f4727252\n'
+    it('should return an empty array if no lines pass validation', async () => {
+      const fileData = 'file,text,number,hex\nfile1,text1,12345678,invalid_hex\nfile1,text2,non_number,abcdef'
+      const externalFilesRepository = {
+        getFile: () => Promise.resolve(fileData)
+      }
+      const service = new ExternalFilesService(externalFilesRepository)
 
-      const processedLines = externalFilesService.processFileData(fileData)
+      const result = await service.processFile('file1')
 
-      processedLines.should.be.an('array')
-      processedLines.should.have.lengthOf(3)
+      expect(result).to.deep.equal([])
+    })
 
-      const line1 = processedLines[0]
-      const line2 = processedLines[1]
+    it('should throw an error if repository returns an error', async () => {
+      const externalFilesRepository = {
+        getFile: () => Promise.reject(new Error('Repository error'))
+      }
+      const service = new ExternalFilesService(externalFilesRepository)
 
-      line1.should.deep.equal({ text: 'RgTya', number: 64075909, hex: '70ad29aacf0b690b0467fe2b2767f765' })
-      line2.should.deep.equal({ text: 'AtjW', number: 6, hex: 'd33a8ca5d36d3106219f66f939774cf5' })
+      await expect(service.processFile('file1')).to.be.rejectedWith('Repository error')
+    })
+  })
+
+  describe('processFiles', () => {
+    it('should process multiple files and return the processed data', async () => {
+      const files = ['file1', 'file2', 'file3']
+      const fileData = {
+        file1: 'file,text,number,hex\nfile1,text1,12345678,ddf63716b65730b5c9b87c73b8399acb\nfile1,text2,98765432,ddf63716b65730b5c9b87c73b8399acb',
+        file2: 'file,text,number,hex\nfile2,text3,11111111,ddf63716b65730b5c9b87c73b8399acb\nfile2,text4,33333333,ddf63716b65730b5c9b87c73b8399acb',
+        file3: 'file,text,number,hex\nfile3,text5,55555555,ddf63716b65730b5c9b87c73b8399acb\nfile3,text6,77777777,ddf63716b65730b5c9b87c73b8399acb'
+      }
+      const externalFilesRepository = {
+        getFiles: () => Promise.resolve(files),
+        getFile: (fileName) => Promise.resolve(fileData[fileName])
+      }
+      const service = new ExternalFilesService(externalFilesRepository)
+
+      const result = await service.processFiles()
+      expect(result).to.deep.equal([
+        {
+          file: 'file1',
+          lines: [
+            { text: 'text1', number: 12345678, hex: 'ddf63716b65730b5c9b87c73b8399acb' },
+            { text: 'text2', number: 98765432, hex: 'ddf63716b65730b5c9b87c73b8399acb' }
+          ]
+        },
+        {
+          file: 'file2',
+          lines: [
+            { text: 'text3', number: 11111111, hex: 'ddf63716b65730b5c9b87c73b8399acb' },
+            { text: 'text4', number: 33333333, hex: 'ddf63716b65730b5c9b87c73b8399acb' }
+          ]
+        },
+        {
+          file: 'file3',
+          lines: [
+            { text: 'text5', number: 55555555, hex: 'ddf63716b65730b5c9b87c73b8399acb' },
+            { text: 'text6', number: 77777777, hex: 'ddf63716b65730b5c9b87c73b8399acb' }
+          ]
+        }
+      ])
+    })
+
+    it('should skip files with no valid lines', async () => {
+      const files = ['file1', 'file2', 'file3']
+      const fileData = {
+        file1: 'file,text,number,hex\nfile1,text1,12345678,invalid_hex\nfile1,text2,non_number,abcdef',
+        file2: 'file,text,number,hex\nfile2,text3,11111111,b2e758639dfceb655e3cf25f48fc996e\nfile2,text4,33333333,b2e758639dfceb655e3cf25f48fc996e',
+        file3: 'file,text,number,hex\nfile3,text5,55555555,invalid_hex\nfile3,text6,non_number,66666666'
+      }
+      const externalFilesRepository = {
+        getFiles: () => Promise.resolve(files),
+        getFile: (fileName) => Promise.resolve(fileData[fileName])
+      }
+      const service = new ExternalFilesService(externalFilesRepository)
+
+      const result = await service.processFiles()
+
+      expect(result).to.deep.equal([
+        {
+          file: 'file2',
+          lines: [
+            { text: 'text3', number: 11111111, hex: 'b2e758639dfceb655e3cf25f48fc996e' },
+            { text: 'text4', number: 33333333, hex: 'b2e758639dfceb655e3cf25f48fc996e' }
+          ]
+        }
+      ])
+    })
+
+    it('should throw an error if repository returns an error', async () => {
+      const externalFilesRepository = {
+        getFiles: () => Promise.reject(new Error('Repository error')),
+        getFile: () => Promise.reject(new Error('Repository error'))
+      }
+      const service = new ExternalFilesService(externalFilesRepository)
+
+      await expect(service.processFiles()).to.be.rejectedWith('Repository error')
     })
   })
 })

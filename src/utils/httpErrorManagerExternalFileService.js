@@ -1,5 +1,6 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-useless-constructor */
-class httpErrorManagerExternalFileService {
+class HttpErrorManagerExternalFileService {
   constructor () {
   }
 
@@ -29,4 +30,4 @@ class httpErrorManagerExternalFileService {
   }
 }
 
-export default httpErrorManagerExternalFileService
+export default HttpErrorManagerExternalFileService

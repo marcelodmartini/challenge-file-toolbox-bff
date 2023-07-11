@@ -1,13 +1,13 @@
 {
   "name": "challenge-file-toolbox-bff",
   "version": "1.0.0",
-  "description": "",
+  "description": "challenge-file-toolbox-bff",
   "main": "app.js",
   "type": "module",
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "mocha --recursive src/tests/**/*Test.js src/tests/**/**/*Test.js",
+    "test": "mocha --recursive src/tests/**/*Test.js src/tests/**/**/*Test.js src/tests/*Test.js",
     "format": "standard"
   },
   "keywords": [
@@ -30,6 +30,6 @@
     "express": "^4.18.2"
   },
   "eslintConfig": {
-    "extends": "./node_modules/standard/eslintrc.json"
+    "extends": "standard"
   }
 }

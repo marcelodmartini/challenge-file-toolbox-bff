@@ -23,24 +23,27 @@ class ExternalFilesService {
 
   async processFiles () {
     const files = await this.externalFilesRepository.getFiles()
-    const processedFiles = []
 
-    for (const file of files) {
+    const promises = files.map(async (file) => {
       try {
         const fileData = await this.externalFilesRepository.getFile(file)
         const processedLines = this.processFileData(fileData)
+
         if (processedLines.length > 0) {
-          processedFiles.push({
+          return {
             file,
             lines: processedLines
-          })
+          }
         }
       } catch (error) {
-        // I discard said file because its information could not be obtained, external api error
-        console.error(`Error fetching data file ${file}:`)
+        console.error(`Error fetching data file ${file}:`, error)
       }
-    }
-    return processedFiles
+
+      return null
+    })
+
+    const results = await Promise.all(promises)
+    return results.filter(result => result !== null)
   }
 
   processFileData (fileData) {
