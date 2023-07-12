@@ -2,6 +2,7 @@ import get from 'axios'
 
 class ExternalFileServiceImpl {
   constructor (httpErrorManagerExternalFileService) {
+    // We can use the .dotenv file to set the context variables
     this.baseUrl = 'https://echo-serv.tbxnet.com'
     this.apiKey = 'Bearer aSuperSecretKey'
     this.headers = {

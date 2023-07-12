@@ -6,6 +6,7 @@ The hex field must have exactly 32 digits
 The number field must be a number and not a text
 
 ------------------------------------------------------------------------
+We can use the .dotenv file to set the context variables
 
 Layers: Each ring represents an isolated layer in the application.  
 Dependency: The dependency direction is from the outside in. Meaning
