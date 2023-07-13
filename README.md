@@ -1,7 +1,7 @@
 To start the project to start in the root directory and run
 docker compose up
 and enter:
-http://localhost:8000/
+http://localhost:3000/
 
 Take into account that there may be empty files and lines with errors (that do not have the necessary amount of data).
 If a line has an error, it must be discarded.
