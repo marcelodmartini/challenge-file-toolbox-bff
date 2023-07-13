@@ -1,14 +1,19 @@
+# Utiliza la imagen base de Node.js 14
 FROM node:14
 
-ENV HOME=/home/app
-WORKDIR $HOME/node_docker
+# Establecemos el directorio de trabajo dentro del contenedor
+WORKDIR /app
 
-COPY package.json package-lock.json $HOME/node_docker/
+# Copia los archivos de la aplicación al contenedor
+COPY package*.json ./
+COPY src ./src
 
-RUN npm install --only=production
+# Instala las dependencias de la aplicación
+RUN npm install
 
-COPY . $HOME/node_docker
-
+# Expone el puerto 3000 en el contenedor
 EXPOSE 3000
 
+# Comando para iniciar la aplicación cuando se ejecute el contenedor
 CMD ["npm", "start"]
+
