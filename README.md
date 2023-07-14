@@ -1,5 +1,5 @@
 To start the project to start in the root directory and run
-docker compose up
+docker-compose up
 and enter:
 http://localhost:3000/
 
